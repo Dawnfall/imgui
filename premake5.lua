@@ -7,22 +7,18 @@ project "imgui"
 
     includedirs
     {
-       "%{IncludeDirs.imgui}",
-       "%{IncludeDirs.GLFW}"
+       "%{wks.location}/Dependencies/imgui",
+       "%{wks.location}/Dependencies/SDL/include"
     }
 
     files
     {
         "*.h",
         "*.cpp",
-        "backends/imgui_impl_glfw.cpp",
-        "backends/imgui_impl_glfw.h",
-        "backends/imgui_impl_opengl3.cpp",
-        "backends/imgui_impl_opengl3.h",
-        "backends/imgui_impl_opengl3_loader.h",
-
-        --"backends/opengl2.h",
-        --"backends/opengl2.cpp",
+        "backends/imgui_impl_sdl2.h",
+        "backends/imgui_impl_sdl2.cpp",
+        "backends/imgui_impl_sdlrenderer2.h",
+        "backends/imgui_impl_sdlrenderer2.cpp",
 
         "misc/debuggers/imgui.natvis",
         "misc/debuggers/imgui.natstepfilter",
