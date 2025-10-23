@@ -444,18 +444,18 @@ void ImGui::ShowDemoWindow(bool* p_open)
     static bool no_docking = false;
     static bool unsaved_document = false;
 
-    ImGuiWindowFlags window_flags = 0;
-    if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
-    if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
-    if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
-    if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
-    if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
-    if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
-    if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
-    if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
-    if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-    if (no_docking)         window_flags |= ImGuiWindowFlags_NoDocking;
-    if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
+    ImGuiWindowFlags dock_flags = 0;
+    if (no_titlebar)        dock_flags |= ImGuiWindowFlags_NoTitleBar;
+    if (no_scrollbar)       dock_flags |= ImGuiWindowFlags_NoScrollbar;
+    if (!no_menu)           dock_flags |= ImGuiWindowFlags_MenuBar;
+    if (no_move)            dock_flags |= ImGuiWindowFlags_NoMove;
+    if (no_resize)          dock_flags |= ImGuiWindowFlags_NoResize;
+    if (no_collapse)        dock_flags |= ImGuiWindowFlags_NoCollapse;
+    if (no_nav)             dock_flags |= ImGuiWindowFlags_NoNav;
+    if (no_background)      dock_flags |= ImGuiWindowFlags_NoBackground;
+    if (no_bring_to_front)  dock_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+    if (no_docking)         dock_flags |= ImGuiWindowFlags_NoDocking;
+    if (unsaved_document)   dock_flags |= ImGuiWindowFlags_UnsavedDocument;
     if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
 
     // We specify a default position/size in case there's no data in the .ini file.
@@ -465,7 +465,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
 
     // Main body of the Demo window starts here.
-    if (!ImGui::Begin("Dear ImGui Demo", p_open, window_flags))
+    if (!ImGui::Begin("Dear ImGui Demo", p_open, dock_flags))
     {
         // Early out if the window is collapsed, as an optimization.
         ImGui::End();
@@ -3956,10 +3956,10 @@ static void ShowDemoWindowLayout()
 
         // Child 1: no border, enable horizontal scrollbar
         {
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+            ImGuiWindowFlags dock_flags = ImGuiWindowFlags_HorizontalScrollbar;
             if (disable_mouse_wheel)
-                window_flags |= ImGuiWindowFlags_NoScrollWithMouse;
-            ImGui::BeginChild("ChildL", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 260), ImGuiChildFlags_None, window_flags);
+                dock_flags |= ImGuiWindowFlags_NoScrollWithMouse;
+            ImGui::BeginChild("ChildL", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 260), ImGuiChildFlags_None, dock_flags);
             for (int i = 0; i < 100; i++)
                 ImGui::Text("%04d: scrollable region", i);
             ImGui::EndChild();
@@ -3969,13 +3969,13 @@ static void ShowDemoWindowLayout()
 
         // Child 2: rounded border
         {
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+            ImGuiWindowFlags dock_flags = ImGuiWindowFlags_None;
             if (disable_mouse_wheel)
-                window_flags |= ImGuiWindowFlags_NoScrollWithMouse;
+                dock_flags |= ImGuiWindowFlags_NoScrollWithMouse;
             if (!disable_menu)
-                window_flags |= ImGuiWindowFlags_MenuBar;
+                dock_flags |= ImGuiWindowFlags_MenuBar;
             ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-            ImGui::BeginChild("ChildR", ImVec2(0, 260), ImGuiChildFlags_Borders, window_flags);
+            ImGui::BeginChild("ChildR", ImVec2(0, 260), ImGuiChildFlags_Borders, dock_flags);
             if (!disable_menu && ImGui::BeginMenuBar())
             {
                 if (ImGui::BeginMenu("Menu"))
@@ -9239,8 +9239,8 @@ static void ShowExampleAppConstrainedResize(bool* p_open)
     // Submit window
     if (!window_padding)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    const ImGuiWindowFlags window_flags = auto_resize ? ImGuiWindowFlags_AlwaysAutoResize : 0;
-    const bool window_open = ImGui::Begin("Example: Constrained Resize", p_open, window_flags);
+    const ImGuiWindowFlags dock_flags = auto_resize ? ImGuiWindowFlags_AlwaysAutoResize : 0;
+    const bool window_open = ImGui::Begin("Example: Constrained Resize", p_open, dock_flags);
     if (!window_padding)
         ImGui::PopStyleVar();
     if (window_open)
@@ -9286,7 +9286,7 @@ static void ShowExampleAppSimpleOverlay(bool* p_open)
 {
     static int location = 0;
     ImGuiIO& io = ImGui::GetIO();
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    ImGuiWindowFlags dock_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     if (location >= 0)
     {
         const float PAD = 10.0f;
@@ -9300,16 +9300,16 @@ static void ShowExampleAppSimpleOverlay(bool* p_open)
         window_pos_pivot.y = (location & 2) ? 1.0f : 0.0f;
         ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
         ImGui::SetNextWindowViewport(viewport->ID);
-        window_flags |= ImGuiWindowFlags_NoMove;
+        dock_flags |= ImGuiWindowFlags_NoMove;
     }
     else if (location == -2)
     {
         // Center window
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-        window_flags |= ImGuiWindowFlags_NoMove;
+        dock_flags |= ImGuiWindowFlags_NoMove;
     }
     ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-    if (ImGui::Begin("Example: Simple overlay", p_open, window_flags))
+    if (ImGui::Begin("Example: Simple overlay", p_open, dock_flags))
     {
         IMGUI_DEMO_MARKER("Examples/Simple Overlay");
         ImGui::Text("Simple overlay\n" "(right-click to change position)");
@@ -9761,7 +9761,7 @@ void ShowExampleAppDockSpace(bool* p_open)
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    ImGuiWindowFlags dock_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     if (opt_fullscreen)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -9770,8 +9770,8 @@ void ShowExampleAppDockSpace(bool* p_open)
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+        dock_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        dock_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     }
     else
     {
@@ -9781,7 +9781,7 @@ void ShowExampleAppDockSpace(bool* p_open)
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
     // and handle the pass-thru hole, so we ask Begin() to not render a background.
     if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-        window_flags |= ImGuiWindowFlags_NoBackground;
+        dock_flags |= ImGuiWindowFlags_NoBackground;
 
     // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
     // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
@@ -9790,7 +9790,7 @@ void ShowExampleAppDockSpace(bool* p_open)
     // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
     if (!opt_padding)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace Demo", p_open, window_flags);
+    ImGui::Begin("DockSpace Demo", p_open, dock_flags);
     if (!opt_padding)
         ImGui::PopStyleVar();
 
@@ -10115,8 +10115,8 @@ void ShowExampleAppDocuments(bool* p_open)
                     continue;
 
                 ImGui::SetNextWindowDockID(dockspace_id, redock_all ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
-                ImGuiWindowFlags window_flags = (doc->Dirty ? ImGuiWindowFlags_UnsavedDocument : 0);
-                bool visible = ImGui::Begin(doc->Name, &doc->Open, window_flags);
+                ImGuiWindowFlags dock_flags = (doc->Dirty ? ImGuiWindowFlags_UnsavedDocument : 0);
+                bool visible = ImGui::Begin(doc->Name, &doc->Open, dock_flags);
 
                 // Cancel attempt to close when unsaved add to save queue so we can display a popup.
                 if (!doc->Open && doc->Dirty)

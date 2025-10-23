@@ -3492,7 +3492,7 @@ namespace ImGui
     IMGUI_API void          LogSetNextTextDecoration(const char* prefix, const char* suffix);
 
     // Childs
-    IMGUI_API bool          BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags);
+    IMGUI_API bool          BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags dock_flags);
 
     // Popups, Modals
     IMGUI_API bool          BeginPopupEx(ImGuiID id, ImGuiWindowFlags extra_window_flags);
@@ -3513,7 +3513,7 @@ namespace ImGui
     IMGUI_API bool          BeginTooltipHidden();
 
     // Menus
-    IMGUI_API bool          BeginViewportSideBar(const char* name, ImGuiViewport* viewport, ImGuiDir dir, float size, ImGuiWindowFlags window_flags);
+    IMGUI_API bool          BeginViewportSideBar(const char* name, ImGuiViewport* viewport, ImGuiDir dir, float size, ImGuiWindowFlags dock_flags);
     IMGUI_API bool          BeginMenuEx(const char* label, const char* icon, bool enabled = true);
     IMGUI_API bool          MenuItemEx(const char* label, const char* icon, const char* shortcut = NULL, bool selected = false, bool enabled = true);
 

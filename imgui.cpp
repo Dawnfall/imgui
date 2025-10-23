@@ -5930,18 +5930,18 @@ ImVec2 ImGui::GetItemRectSize()
 
 // Prior to v1.90 2023/10/16, the BeginChild() function took a 'bool border = false' parameter instead of 'ImGuiChildFlags child_flags = 0'.
 // ImGuiChildFlags_Borders is defined as always == 1 in order to allow old code passing 'true'. Read comments in imgui.h for details!
-bool ImGui::BeginChild(const char* str_id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags)
+bool ImGui::BeginChild(const char* str_id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags dock_flags)
 {
     ImGuiID id = GetCurrentWindow()->GetID(str_id);
-    return BeginChildEx(str_id, id, size_arg, child_flags, window_flags);
+    return BeginChildEx(str_id, id, size_arg, child_flags, dock_flags);
 }
 
-bool ImGui::BeginChild(ImGuiID id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags)
+bool ImGui::BeginChild(ImGuiID id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags dock_flags)
 {
-    return BeginChildEx(NULL, id, size_arg, child_flags, window_flags);
+    return BeginChildEx(NULL, id, size_arg, child_flags, dock_flags);
 }
 
-bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags)
+bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, ImGuiChildFlags child_flags, ImGuiWindowFlags dock_flags)
 {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* parent_window = g.CurrentWindow;
@@ -5951,16 +5951,16 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, I
     const ImGuiChildFlags ImGuiChildFlags_SupportedMask_ = ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_ResizeX | ImGuiChildFlags_ResizeY | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_FrameStyle | ImGuiChildFlags_NavFlattened;
     IM_UNUSED(ImGuiChildFlags_SupportedMask_);
     IM_ASSERT((child_flags & ~ImGuiChildFlags_SupportedMask_) == 0 && "Illegal ImGuiChildFlags value. Did you pass ImGuiWindowFlags values instead of ImGuiChildFlags?");
-    IM_ASSERT((window_flags & ImGuiWindowFlags_AlwaysAutoResize) == 0 && "Cannot specify ImGuiWindowFlags_AlwaysAutoResize for BeginChild(). Use ImGuiChildFlags_AlwaysAutoResize!");
+    IM_ASSERT((dock_flags & ImGuiWindowFlags_AlwaysAutoResize) == 0 && "Cannot specify ImGuiWindowFlags_AlwaysAutoResize for BeginChild(). Use ImGuiChildFlags_AlwaysAutoResize!");
     if (child_flags & ImGuiChildFlags_AlwaysAutoResize)
     {
         IM_ASSERT((child_flags & (ImGuiChildFlags_ResizeX | ImGuiChildFlags_ResizeY)) == 0 && "Cannot use ImGuiChildFlags_ResizeX or ImGuiChildFlags_ResizeY with ImGuiChildFlags_AlwaysAutoResize!");
         IM_ASSERT((child_flags & (ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) != 0 && "Must use ImGuiChildFlags_AutoResizeX or ImGuiChildFlags_AutoResizeY with ImGuiChildFlags_AlwaysAutoResize!");
     }
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-    if (window_flags & ImGuiWindowFlags_AlwaysUseWindowPadding)
+    if (dock_flags & ImGuiWindowFlags_AlwaysUseWindowPadding)
         child_flags |= ImGuiChildFlags_AlwaysUseWindowPadding;
-    if (window_flags & ImGuiWindowFlags_NavFlattened)
+    if (dock_flags & ImGuiWindowFlags_NavFlattened)
         child_flags |= ImGuiChildFlags_NavFlattened;
 #endif
     if (child_flags & ImGuiChildFlags_AutoResizeX)
@@ -5969,12 +5969,12 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, I
         child_flags &= ~ImGuiChildFlags_ResizeY;
 
     // Set window flags
-    window_flags |= ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking;
-    window_flags |= (parent_window->Flags & ImGuiWindowFlags_NoMove); // Inherit the NoMove flag
+    dock_flags |= ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking;
+    dock_flags |= (parent_window->Flags & ImGuiWindowFlags_NoMove); // Inherit the NoMove flag
     if (child_flags & (ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize))
-        window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+        dock_flags |= ImGuiWindowFlags_AlwaysAutoResize;
     if ((child_flags & (ImGuiChildFlags_ResizeX | ImGuiChildFlags_ResizeY)) == 0)
-        window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
+        dock_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
 
     // Special framed style
     if (child_flags & ImGuiChildFlags_FrameStyle)
@@ -5984,7 +5984,7 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, I
         PushStyleVar(ImGuiStyleVar_ChildBorderSize, g.Style.FrameBorderSize);
         PushStyleVar(ImGuiStyleVar_WindowPadding, g.Style.FramePadding);
         child_flags |= ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding;
-        window_flags |= ImGuiWindowFlags_NoMove;
+        dock_flags |= ImGuiWindowFlags_NoMove;
     }
 
     // Forward child flags
@@ -6017,7 +6017,7 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, I
         g.Style.ChildBorderSize = 0.0f;
 
     // Begin into window
-    const bool ret = Begin(temp_window_name, NULL, window_flags);
+    const bool ret = Begin(temp_window_name, NULL, dock_flags);
 
     // Restore style
     g.Style.ChildBorderSize = backup_border_size;
@@ -15805,10 +15805,10 @@ void ImGui::WindowSyncOwnedViewport(ImGuiWindow* window, ImGuiWindow* parent_win
     // Update common viewport flags
     const ImGuiViewportFlags viewport_flags_to_clear = ImGuiViewportFlags_TopMost | ImGuiViewportFlags_NoTaskBarIcon | ImGuiViewportFlags_NoDecoration | ImGuiViewportFlags_NoRendererClear;
     ImGuiViewportFlags viewport_flags = window->Viewport->Flags & ~viewport_flags_to_clear;
-    ImGuiWindowFlags window_flags = window->Flags;
-    const bool is_modal = (window_flags & ImGuiWindowFlags_Modal) != 0;
-    const bool is_short_lived_floating_window = (window_flags & (ImGuiWindowFlags_ChildMenu | ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_Popup)) != 0;
-    if (window_flags & ImGuiWindowFlags_Tooltip)
+    ImGuiWindowFlags dock_flags = window->Flags;
+    const bool is_modal = (dock_flags & ImGuiWindowFlags_Modal) != 0;
+    const bool is_short_lived_floating_window = (dock_flags & (ImGuiWindowFlags_ChildMenu | ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_Popup)) != 0;
+    if (dock_flags & ImGuiWindowFlags_Tooltip)
         viewport_flags |= ImGuiViewportFlags_TopMost;
     if ((g.IO.ConfigViewportsNoTaskBarIcon || is_short_lived_floating_window) && !is_modal)
         viewport_flags |= ImGuiViewportFlags_NoTaskBarIcon;
@@ -15837,7 +15837,7 @@ void ImGui::WindowSyncOwnedViewport(ImGuiWindow* window, ImGuiWindow* parent_win
     // We can also tell the backend that clearing the platform window won't be necessary,
     // as our window background is filling the viewport and we have disabled BgAlpha.
     // FIXME: Work on support for per-viewport transparency (#2766)
-    if (!(window_flags & ImGuiWindowFlags_NoBackground))
+    if (!(dock_flags & ImGuiWindowFlags_NoBackground))
         viewport_flags |= ImGuiViewportFlags_NoRendererClear;
 
     window->Viewport->Flags = viewport_flags;
@@ -15846,7 +15846,7 @@ void ImGui::WindowSyncOwnedViewport(ImGuiWindow* window, ImGuiWindow* parent_win
     // (the !IsFallbackWindow test mimic the one done in WindowSelectViewport())
     if (window->WindowClass.ParentViewportId != (ImGuiID)-1)
         window->Viewport->ParentViewportId = window->WindowClass.ParentViewportId;
-    else if ((window_flags & (ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) && parent_window_in_stack && (!parent_window_in_stack->IsFallbackWindow || parent_window_in_stack->WasActive))
+    else if ((dock_flags & (ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) && parent_window_in_stack && (!parent_window_in_stack->IsFallbackWindow || parent_window_in_stack->WasActive))
         window->Viewport->ParentViewportId = parent_window_in_stack->Viewport->ID;
     else
         window->Viewport->ParentViewportId = g.IO.ConfigViewportsNoDefaultParent ? 0 : IMGUI_VIEWPORT_DEFAULT_ID;
@@ -17573,14 +17573,14 @@ static void ImGui::DockNodeUpdate(ImGuiDockNode* node)
             // Begin into the host window
             char window_label[20];
             DockNodeGetHostWindowTitle(node, window_label, IM_ARRAYSIZE(window_label));
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_DockNodeHost;
-            window_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-            window_flags |= ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoCollapse;
-            window_flags |= ImGuiWindowFlags_NoTitleBar;
+            ImGuiWindowFlags dock_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_DockNodeHost;
+            dock_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
+            dock_flags |= ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoCollapse;
+            dock_flags |= ImGuiWindowFlags_NoTitleBar;
 
             SetNextWindowBgAlpha(0.0f); // Don't set ImGuiWindowFlags_NoBackground because it disables borders
             PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-            Begin(window_label, NULL, window_flags);
+            Begin(window_label, NULL, dock_flags);
             PopStyleVar();
             beginned_into_host_window = true;
 
@@ -18988,16 +18988,16 @@ ImGuiID ImGui::DockSpace(ImGuiID dockspace_id, const ImVec2& size_arg, ImGuiDock
 
     // FIXME-DOCK: Why do we need a child window to host a dockspace, could we host it in the existing window?
     // FIXME-DOCK: What is the reason for not simply calling BeginChild()? (OK to have a reason but should be commented)
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_DockNodeHost;
-    window_flags |= ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
-    window_flags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-    window_flags |= ImGuiWindowFlags_NoBackground;
+    ImGuiWindowFlags dock_flags = ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_DockNodeHost;
+    dock_flags |= ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+    dock_flags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+    dock_flags |= ImGuiWindowFlags_NoBackground;
 
     char title[256];
     ImFormatString(title, IM_ARRAYSIZE(title), "%s/DockSpace_%08X", window->Name, dockspace_id);
 
     PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-    Begin(title, NULL, window_flags);
+    Begin(title, NULL, dock_flags);
     PopStyleVar();
 
     ImGuiWindow* host_window = g.CurrentWindow;

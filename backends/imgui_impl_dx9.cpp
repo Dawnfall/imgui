@@ -197,12 +197,12 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
     // Allocate buffers
     CUSTOMVERTEX* vtx_dst;
     ImDrawIdx* idx_dst;
-    if (bd->pVB->Lock(0, (UINT)(draw_data->TotalVtxCount * sizeof(CUSTOMVERTEX)), (void**)&vtx_dst, D3DLOCK_DISCARD) < 0)
+    if (bd->pVB->Lock(0, (UNSIGNED_INT)(draw_data->TotalVtxCount * sizeof(CUSTOMVERTEX)), (void**)&vtx_dst, D3DLOCK_DISCARD) < 0)
     {
         d3d9_state_block->Release();
         return;
     }
-    if (bd->pIB->Lock(0, (UINT)(draw_data->TotalIdxCount * sizeof(ImDrawIdx)), (void**)&idx_dst, D3DLOCK_DISCARD) < 0)
+    if (bd->pIB->Lock(0, (UNSIGNED_INT)(draw_data->TotalIdxCount * sizeof(ImDrawIdx)), (void**)&idx_dst, D3DLOCK_DISCARD) < 0)
     {
         bd->pVB->Unlock();
         d3d9_state_block->Release();
@@ -273,7 +273,7 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
                 const LPDIRECT3DTEXTURE9 texture = (LPDIRECT3DTEXTURE9)pcmd->GetTexID();
                 bd->pd3dDevice->SetTexture(0, texture);
                 bd->pd3dDevice->SetScissorRect(&r);
-                bd->pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, pcmd->VtxOffset + global_vtx_offset, 0, (UINT)cmd_list->VtxBuffer.Size, pcmd->IdxOffset + global_idx_offset, pcmd->ElemCount / 3);
+                bd->pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, pcmd->VtxOffset + global_vtx_offset, 0, (UNSIGNED_INT)cmd_list->VtxBuffer.Size, pcmd->IdxOffset + global_idx_offset, pcmd->ElemCount / 3);
             }
         }
         global_idx_offset += cmd_list->IdxBuffer.Size;
@@ -456,8 +456,8 @@ static void ImGui_ImplDX9_CreateWindow(ImGuiViewport* viewport)
     ZeroMemory(&vd->d3dpp, sizeof(D3DPRESENT_PARAMETERS));
     vd->d3dpp.Windowed = TRUE;
     vd->d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    vd->d3dpp.BackBufferWidth = (UINT)viewport->Size.x;
-    vd->d3dpp.BackBufferHeight = (UINT)viewport->Size.y;
+    vd->d3dpp.BackBufferWidth = (UNSIGNED_INT)viewport->Size.x;
+    vd->d3dpp.BackBufferHeight = (UNSIGNED_INT)viewport->Size.y;
     vd->d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
     vd->d3dpp.hDeviceWindow = hwnd;
     vd->d3dpp.EnableAutoDepthStencil = FALSE;
@@ -491,8 +491,8 @@ static void ImGui_ImplDX9_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
     {
         vd->SwapChain->Release();
         vd->SwapChain = nullptr;
-        vd->d3dpp.BackBufferWidth = (UINT)size.x;
-        vd->d3dpp.BackBufferHeight = (UINT)size.y;
+        vd->d3dpp.BackBufferWidth = (UNSIGNED_INT)size.x;
+        vd->d3dpp.BackBufferHeight = (UNSIGNED_INT)size.y;
         HRESULT hr = bd->pd3dDevice->CreateAdditionalSwapChain(&vd->d3dpp, &vd->SwapChain); IM_UNUSED(hr);
         IM_ASSERT(hr == D3D_OK);
     }

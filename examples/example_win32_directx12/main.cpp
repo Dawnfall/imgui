@@ -37,7 +37,7 @@ struct FrameContext
 // Data
 static int const                    NUM_FRAMES_IN_FLIGHT = 3;
 static FrameContext                 g_frameContext[NUM_FRAMES_IN_FLIGHT] = {};
-static UINT                         g_frameIndex = 0;
+static UNSIGNED_INT                         g_frameIndex = 0;
 
 static int const                    NUM_BACK_BUFFERS = 3;
 static ID3D12Device*                g_pd3dDevice = nullptr;
@@ -61,7 +61,7 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 void WaitForLastSubmittedFrame();
 FrameContext* WaitForNextFrameResources();
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+LRESULT WINAPI WndProc(HWND hWnd, UNSIGNED_INT msg, WPARAM wParam, LPARAM lParam);
 
 // Main code
 int main(int, char**)
@@ -206,7 +206,7 @@ int main(int, char**)
         ImGui::Render();
 
         FrameContext* frameCtx = WaitForNextFrameResources();
-        UINT backBufferIdx = g_pSwapChain->GetCurrentBackBufferIndex();
+        UNSIGNED_INT backBufferIdx = g_pSwapChain->GetCurrentBackBufferIndex();
         frameCtx->CommandAllocator->Reset();
 
         D3D12_RESOURCE_BARRIER barrier = {};
@@ -322,7 +322,7 @@ bool CreateDeviceD3D(HWND hWnd)
 
         SIZE_T rtvDescriptorSize = g_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = g_pd3dRtvDescHeap->GetCPUDescriptorHandleForHeapStart();
-        for (UINT i = 0; i < NUM_BACK_BUFFERS; i++)
+        for (UNSIGNED_INT i = 0; i < NUM_BACK_BUFFERS; i++)
         {
             g_mainRenderTargetDescriptor[i] = rtvHandle;
             rtvHandle.ptr += rtvDescriptorSize;
@@ -347,7 +347,7 @@ bool CreateDeviceD3D(HWND hWnd)
             return false;
     }
 
-    for (UINT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
+    for (UNSIGNED_INT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
         if (g_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&g_frameContext[i].CommandAllocator)) != S_OK)
             return false;
 
@@ -386,7 +386,7 @@ void CleanupDeviceD3D()
     CleanupRenderTarget();
     if (g_pSwapChain) { g_pSwapChain->SetFullscreenState(false, nullptr); g_pSwapChain->Release(); g_pSwapChain = nullptr; }
     if (g_hSwapChainWaitableObject != nullptr) { CloseHandle(g_hSwapChainWaitableObject); }
-    for (UINT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
+    for (UNSIGNED_INT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
         if (g_frameContext[i].CommandAllocator) { g_frameContext[i].CommandAllocator->Release(); g_frameContext[i].CommandAllocator = nullptr; }
     if (g_pd3dCommandQueue) { g_pd3dCommandQueue->Release(); g_pd3dCommandQueue = nullptr; }
     if (g_pd3dCommandList) { g_pd3dCommandList->Release(); g_pd3dCommandList = nullptr; }
@@ -408,7 +408,7 @@ void CleanupDeviceD3D()
 
 void CreateRenderTarget()
 {
-    for (UINT i = 0; i < NUM_BACK_BUFFERS; i++)
+    for (UNSIGNED_INT i = 0; i < NUM_BACK_BUFFERS; i++)
     {
         ID3D12Resource* pBackBuffer = nullptr;
         g_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pBackBuffer));
@@ -421,7 +421,7 @@ void CleanupRenderTarget()
 {
     WaitForLastSubmittedFrame();
 
-    for (UINT i = 0; i < NUM_BACK_BUFFERS; i++)
+    for (UNSIGNED_INT i = 0; i < NUM_BACK_BUFFERS; i++)
         if (g_mainRenderTargetResource[i]) { g_mainRenderTargetResource[i]->Release(); g_mainRenderTargetResource[i] = nullptr; }
 }
 
@@ -443,7 +443,7 @@ void WaitForLastSubmittedFrame()
 
 FrameContext* WaitForNextFrameResources()
 {
-    UINT nextFrameIndex = g_frameIndex + 1;
+    UNSIGNED_INT nextFrameIndex = g_frameIndex + 1;
     g_frameIndex = nextFrameIndex;
 
     HANDLE waitableObjects[] = { g_hSwapChainWaitableObject, nullptr };
@@ -465,14 +465,14 @@ FrameContext* WaitForNextFrameResources()
 }
 
 // Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UNSIGNED_INT msg, WPARAM wParam, LPARAM lParam);
 
 // Win32 message handler
 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
 // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
 // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
 // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI WndProc(HWND hWnd, UNSIGNED_INT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
         return true;
@@ -484,7 +484,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             WaitForLastSubmittedFrame();
             CleanupRenderTarget();
-            HRESULT result = g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
+            HRESULT result = g_pSwapChain->ResizeBuffers(0, (UNSIGNED_INT)LOWORD(lParam), (UNSIGNED_INT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
             assert(SUCCEEDED(result) && "Failed to resize swapchain.");
             CreateRenderTarget();
         }

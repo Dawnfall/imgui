@@ -640,7 +640,7 @@ static ImGuiKey ImGui_ImplWin32_VirtualKeyToImGuiKey(WPARAM wParam)
 // PS: We treat DBLCLK messages as regular mouse down messages, so this code will work on windows classes that have the CS_DBLCLKS flag set. Our own example app code doesn't set this flag.
 #if 0
 // Copy this line into your .cpp file to forward declare the function.
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UNSIGNED_INT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
 // See https://learn.microsoft.com/en-us/windows/win32/tablet/system-events-and-mouse-messages
@@ -655,7 +655,7 @@ static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo()
     return ImGuiMouseSource_Mouse;
 }
 
-IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UNSIGNED_INT msg, WPARAM wParam, LPARAM lParam)
 {
     // Most backends don't have silent checks like this one, but we need it because WndProc are called early in CreateWindow().
     // We silently allow both context or just only backend data to be nullptr.
@@ -822,7 +822,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
         return 0;
     case WM_DEVICECHANGE:
 #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-        if ((UINT)wParam == DBT_DEVNODES_CHANGED)
+        if ((UNSIGNED_INT)wParam == DBT_DEVNODES_CHANGED)
             bd->WantUpdateHasGamepad = true;
 #endif
         return 0;
@@ -887,7 +887,7 @@ DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
 #define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 (DPI_AWARENESS_CONTEXT)-4
 #endif
 typedef HRESULT(WINAPI* PFN_SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS);                     // Shcore.lib + dll, Windows 8.1+
-typedef HRESULT(WINAPI* PFN_GetDpiForMonitor)(HMONITOR, MONITOR_DPI_TYPE, UINT*, UINT*);        // Shcore.lib + dll, Windows 8.1+
+typedef HRESULT(WINAPI* PFN_GetDpiForMonitor)(HMONITOR, MONITOR_DPI_TYPE, UNSIGNED_INT*, UNSIGNED_INT*);        // Shcore.lib + dll, Windows 8.1+
 typedef DPI_AWARENESS_CONTEXT(WINAPI* PFN_SetThreadDpiAwarenessContext)(DPI_AWARENESS_CONTEXT); // User32.lib + dll, Windows 10 v1607+ (Creators Update)
 
 // Helper function to enable DPI awareness without setting up a manifest
@@ -926,7 +926,7 @@ void ImGui_ImplWin32_EnableDpiAwareness()
 
 float ImGui_ImplWin32_GetDpiScaleForMonitor(void* monitor)
 {
-    UINT xdpi = 96, ydpi = 96;
+    UNSIGNED_INT xdpi = 96, ydpi = 96;
     if (_IsWindows8Point1OrGreater())
     {
 		static HINSTANCE shcore_dll = ::LoadLibraryA("shcore.dll"); // Reference counted per-process
@@ -1134,7 +1134,7 @@ static void ImGui_ImplWin32_UpdateWindow(ImGuiViewport* viewport)
         // (Optional) Update TopMost state if it changed _after_ creation
         bool top_most_changed = (vd->DwExStyle & WS_EX_TOPMOST) != (new_ex_style & WS_EX_TOPMOST);
         HWND insert_after = top_most_changed ? ((viewport->Flags & ImGuiViewportFlags_TopMost) ? HWND_TOPMOST : HWND_NOTOPMOST) : 0;
-        UINT swp_flag = top_most_changed ? 0 : SWP_NOZORDER;
+        UNSIGNED_INT swp_flag = top_most_changed ? 0 : SWP_NOZORDER;
 
         // Apply flags and position (since it is affected by flags)
         vd->DwStyle = new_style;
@@ -1261,7 +1261,7 @@ static void ImGui_ImplWin32_OnChangedViewport(ImGuiViewport* viewport)
 #endif
 }
 
-static LRESULT CALLBACK ImGui_ImplWin32_WndProcHandler_PlatformWindow(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ImGui_ImplWin32_WndProcHandler_PlatformWindow(HWND hWnd, UNSIGNED_INT msg, WPARAM wParam, LPARAM lParam)
 {
     // Allow secondary viewport WndProc to be called regardless of current context
     ImGuiContext* hwnd_ctx = (ImGuiContext*)::GetPropA(hWnd, "IMGUI_CONTEXT");

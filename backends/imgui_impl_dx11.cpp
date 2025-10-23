@@ -207,25 +207,25 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
     // Backup DX state that will be modified to restore it afterwards (unfortunately this is very ugly looking and verbose. Close your eyes!)
     struct BACKUP_DX11_STATE
     {
-        UINT                        ScissorRectsCount, ViewportsCount;
+        UNSIGNED_INT                        ScissorRectsCount, ViewportsCount;
         D3D11_RECT                  ScissorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
         D3D11_VIEWPORT              Viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
         ID3D11RasterizerState*      RS;
         ID3D11BlendState*           BlendState;
         FLOAT                       BlendFactor[4];
-        UINT                        SampleMask;
-        UINT                        StencilRef;
+        UNSIGNED_INT                        SampleMask;
+        UNSIGNED_INT                        StencilRef;
         ID3D11DepthStencilState*    DepthStencilState;
         ID3D11ShaderResourceView*   PSShaderResource;
         ID3D11SamplerState*         PSSampler;
         ID3D11PixelShader*          PS;
         ID3D11VertexShader*         VS;
         ID3D11GeometryShader*       GS;
-        UINT                        PSInstancesCount, VSInstancesCount, GSInstancesCount;
+        UNSIGNED_INT                        PSInstancesCount, VSInstancesCount, GSInstancesCount;
         ID3D11ClassInstance         *PSInstances[256], *VSInstances[256], *GSInstances[256];   // 256 is max according to PSSetShader documentation
         D3D11_PRIMITIVE_TOPOLOGY    PrimitiveTopology;
         ID3D11Buffer*               IndexBuffer, *VertexBuffer, *VSConstantBuffer;
-        UINT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
+        UNSIGNED_INT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
         DXGI_FORMAT                 IndexBufferFormat;
         ID3D11InputLayout*          InputLayout;
     };
@@ -303,11 +303,11 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
     ctx->PSSetShaderResources(0, 1, &old.PSShaderResource); if (old.PSShaderResource) old.PSShaderResource->Release();
     ctx->PSSetSamplers(0, 1, &old.PSSampler); if (old.PSSampler) old.PSSampler->Release();
     ctx->PSSetShader(old.PS, old.PSInstances, old.PSInstancesCount); if (old.PS) old.PS->Release();
-    for (UINT i = 0; i < old.PSInstancesCount; i++) if (old.PSInstances[i]) old.PSInstances[i]->Release();
+    for (UNSIGNED_INT i = 0; i < old.PSInstancesCount; i++) if (old.PSInstances[i]) old.PSInstances[i]->Release();
     ctx->VSSetShader(old.VS, old.VSInstances, old.VSInstancesCount); if (old.VS) old.VS->Release();
     ctx->VSSetConstantBuffers(0, 1, &old.VSConstantBuffer); if (old.VSConstantBuffer) old.VSConstantBuffer->Release();
     ctx->GSSetShader(old.GS, old.GSInstances, old.GSInstancesCount); if (old.GS) old.GS->Release();
-    for (UINT i = 0; i < old.VSInstancesCount; i++) if (old.VSInstances[i]) old.VSInstances[i]->Release();
+    for (UNSIGNED_INT i = 0; i < old.VSInstancesCount; i++) if (old.VSInstances[i]) old.VSInstances[i]->Release();
     ctx->IASetPrimitiveTopology(old.PrimitiveTopology);
     ctx->IASetIndexBuffer(old.IndexBuffer, old.IndexBufferFormat, old.IndexBufferOffset); if (old.IndexBuffer) old.IndexBuffer->Release();
     ctx->IASetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset); if (old.VertexBuffer) old.VertexBuffer->Release();
@@ -432,9 +432,9 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         // Create the input layout
         D3D11_INPUT_ELEMENT_DESC local_layout[] =
         {
-            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)offsetof(ImDrawVert, col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UNSIGNED_INT)offsetof(ImDrawVert, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UNSIGNED_INT)offsetof(ImDrawVert, uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UNSIGNED_INT)offsetof(ImDrawVert, col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
         if (bd->pd3dDevice->CreateInputLayout(local_layout, 3, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &bd->pInputLayout) != S_OK)
         {
@@ -642,8 +642,8 @@ static void ImGui_ImplDX11_CreateWindow(ImGuiViewport* viewport)
     // Create swap chain
     DXGI_SWAP_CHAIN_DESC sd;
     ZeroMemory(&sd, sizeof(sd));
-    sd.BufferDesc.Width = (UINT)viewport->Size.x;
-    sd.BufferDesc.Height = (UINT)viewport->Size.y;
+    sd.BufferDesc.Width = (UNSIGNED_INT)viewport->Size.x;
+    sd.BufferDesc.Height = (UNSIGNED_INT)viewport->Size.y;
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     sd.SampleDesc.Count = 1;
     sd.SampleDesc.Quality = 0;
@@ -695,7 +695,7 @@ static void ImGui_ImplDX11_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
     if (vd->SwapChain)
     {
         ID3D11Texture2D* pBackBuffer = nullptr;
-        vd->SwapChain->ResizeBuffers(0, (UINT)size.x, (UINT)size.y, DXGI_FORMAT_UNKNOWN, 0);
+        vd->SwapChain->ResizeBuffers(0, (UNSIGNED_INT)size.x, (UNSIGNED_INT)size.y, DXGI_FORMAT_UNKNOWN, 0);
         vd->SwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
         if (pBackBuffer == nullptr) { fprintf(stderr, "ImGui_ImplDX11_SetWindowSize() failed creating buffers.\n"); return; }
         bd->pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &vd->RTView);

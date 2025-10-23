@@ -93,8 +93,8 @@ static void ImGui_ImplDX10_SetupRenderState(ImDrawData* draw_data, ID3D10Device*
     // Setup viewport
     D3D10_VIEWPORT vp;
     memset(&vp, 0, sizeof(D3D10_VIEWPORT));
-    vp.Width = (UINT)draw_data->DisplaySize.x;
-    vp.Height = (UINT)draw_data->DisplaySize.y;
+    vp.Width = (UNSIGNED_INT)draw_data->DisplaySize.x;
+    vp.Height = (UNSIGNED_INT)draw_data->DisplaySize.y;
     vp.MinDepth = 0.0f;
     vp.MaxDepth = 1.0f;
     vp.TopLeftX = vp.TopLeftY = 0;
@@ -201,14 +201,14 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
     // Backup DX state that will be modified to restore it afterwards (unfortunately this is very ugly looking and verbose. Close your eyes!)
     struct BACKUP_DX10_STATE
     {
-        UINT                        ScissorRectsCount, ViewportsCount;
+        UNSIGNED_INT                        ScissorRectsCount, ViewportsCount;
         D3D10_RECT                  ScissorRects[D3D10_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
         D3D10_VIEWPORT              Viewports[D3D10_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
         ID3D10RasterizerState*      RS;
         ID3D10BlendState*           BlendState;
         FLOAT                       BlendFactor[4];
-        UINT                        SampleMask;
-        UINT                        StencilRef;
+        UNSIGNED_INT                        SampleMask;
+        UNSIGNED_INT                        StencilRef;
         ID3D10DepthStencilState*    DepthStencilState;
         ID3D10ShaderResourceView*   PSShaderResource;
         ID3D10SamplerState*         PSSampler;
@@ -217,7 +217,7 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
         ID3D10GeometryShader*       GS;
         D3D10_PRIMITIVE_TOPOLOGY    PrimitiveTopology;
         ID3D10Buffer*               IndexBuffer, *VertexBuffer, *VSConstantBuffer;
-        UINT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
+        UNSIGNED_INT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
         DXGI_FORMAT                 IndexBufferFormat;
         ID3D10InputLayout*          InputLayout;
     };
@@ -420,9 +420,9 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
         // Create the input layout
         D3D10_INPUT_ELEMENT_DESC local_layout[] =
         {
-            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, pos), D3D10_INPUT_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)offsetof(ImDrawVert, uv),  D3D10_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)offsetof(ImDrawVert, col), D3D10_INPUT_PER_VERTEX_DATA, 0 },
+            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UNSIGNED_INT)offsetof(ImDrawVert, pos), D3D10_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UNSIGNED_INT)offsetof(ImDrawVert, uv),  D3D10_INPUT_PER_VERTEX_DATA, 0 },
+            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UNSIGNED_INT)offsetof(ImDrawVert, col), D3D10_INPUT_PER_VERTEX_DATA, 0 },
         };
         if (bd->pd3dDevice->CreateInputLayout(local_layout, 3, vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &bd->pInputLayout) != S_OK)
         {
@@ -625,8 +625,8 @@ static void ImGui_ImplDX10_CreateWindow(ImGuiViewport* viewport)
     // Create swap chain
     DXGI_SWAP_CHAIN_DESC sd;
     ZeroMemory(&sd, sizeof(sd));
-    sd.BufferDesc.Width = (UINT)viewport->Size.x;
-    sd.BufferDesc.Height = (UINT)viewport->Size.y;
+    sd.BufferDesc.Width = (UNSIGNED_INT)viewport->Size.x;
+    sd.BufferDesc.Height = (UNSIGNED_INT)viewport->Size.y;
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     sd.SampleDesc.Count = 1;
     sd.SampleDesc.Quality = 0;
@@ -678,7 +678,7 @@ static void ImGui_ImplDX10_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
     if (vd->SwapChain)
     {
         ID3D10Texture2D* pBackBuffer = nullptr;
-        vd->SwapChain->ResizeBuffers(0, (UINT)size.x, (UINT)size.y, DXGI_FORMAT_UNKNOWN, 0);
+        vd->SwapChain->ResizeBuffers(0, (UNSIGNED_INT)size.x, (UNSIGNED_INT)size.y, DXGI_FORMAT_UNKNOWN, 0);
         vd->SwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
         if (pBackBuffer == nullptr) { fprintf(stderr, "ImGui_ImplDX10_SetWindowSize() failed creating buffers.\n"); return; }
         bd->pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &vd->RTView);
